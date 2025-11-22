@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:practice/pages/profile_settings.dart';
 import '../entities/event.dart';
 import '../entities/green_project.dart';
 import '../theme/app_colors.dart';
@@ -30,7 +31,15 @@ class Home extends StatelessWidget {
               children: [
                 Icon(Icons.notifications, color: AppColors.blackIcon),
                 const SizedBox(width: 16),
-                Icon(Icons.settings, color: AppColors.blackIcon),
+                IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ProfileSettings()),
+                      );
+                    },
+                    icon: Icon(Icons.settings, color: AppColors.blackIcon)
+                ),
                 const SizedBox(width: 16),
                 const CircleAvatar(
                   radius: 18,

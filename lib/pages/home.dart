@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:practice/pages/profile_settings.dart';
-import '../entities/event.dart';
 import '../entities/green_project.dart';
+import '../entities/financement_event.dart';
+import '../services/project_service.dart';
+import '../services/financement_service.dart';
 import '../theme/app_colors.dart';
+import '../utils/api_config.dart';
+import '../widgets/financement_list.dart';
+import '../widgets/project_horizontal_list.dart';
+import 'create_project_page.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea( // ✅ Avoid top notch overlap
+    return SafeArea(
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFE2E8E2), // light green top
-              Color(0xFFF4F4F4), // fade to lighter bottom
+              Color(0xFFE2E8E2),
+              Color(0xFFF4F4F4),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -25,68 +31,16 @@ class Home extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ Fixed top row (icons)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(Icons.notifications, color: AppColors.blackIcon),
-                const SizedBox(width: 16),
-                IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ProfileSettings()),
-                      );
-                    },
-                    icon: Icon(Icons.settings, color: AppColors.blackIcon)
-                ),
-                const SizedBox(width: 16),
-                const CircleAvatar(
-                  radius: 18,
-                  backgroundImage: AssetImage('assets/profile.jpg'),
-                ),
-              ],
-            ),
+            TopBar(),
             const SizedBox(height: 15),
-
-            // ✅ Fixed title section
-            const Text(
-              '🌳',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              "Green Energy",
-              style: TextStyle(
-                color: AppColors.primaryLight,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              "Help us save the earth",
-              style: TextStyle(
-                color: AppColors.textOnBlack,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const TitleSection(),
             const SizedBox(height: 15),
-            WidgetProjects(),
-            SizedBox(height: 20),
-
-            // ✅ Expanded scrollable content (fills until bottom)
+            const WidgetProjects(),
+            const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: const [
-                    InvestorWidget(),
-                    SizedBox(height: 10),
-                  ],
-                ),
+                child: const InvestorWidget(),
               ),
             ),
           ],
@@ -96,40 +50,76 @@ class Home extends StatelessWidget {
   }
 }
 
-class InvestorWidget extends StatelessWidget {
-  const InvestorWidget({super.key});
-
+// ----------------- TopBar -----------------
+class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Row(
-          children: [
-            Text(
-              "Top investors",
-              style: TextStyle(
-                color: AppColors.textOnBlack,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const Spacer(),
-            Icon(Icons.supervised_user_circle_outlined,
-                color: AppColors.blackIcon, size: 20),
-          ],
+        Icon(Icons.notifications, color: AppColors.blackIcon),
+        const SizedBox(width: 16),
+        IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileSettings()),
+            );
+          },
+          icon: Icon(Icons.settings, color: AppColors.blackIcon),
         ),
-        const SizedBox(height: 10),
-
-        // ✅ Scrollable inside available height
-        SizedBox(
-          height: 320,
-          child: Events(),
+        const SizedBox(width: 16),
+        // + icon to create a new project
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CreateProjectPage()),
+            );
+          },
+          child: CircleAvatar(
+            radius: 18,
+            backgroundColor: Colors.green, // change color if needed
+            child: const Icon(Icons.add, color: Colors.white, size: 24),
+          ),
         ),
       ],
     );
   }
 }
 
+// ----------------- Title Section -----------------
+class TitleSection extends StatelessWidget {
+  const TitleSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('🌳', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w500)),
+        Text(
+          "Green Energy",
+          style: TextStyle(
+            color: AppColors.primaryLight,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          "Help us save the earth",
+          style: TextStyle(
+            color: AppColors.textOnBlack,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ----------------- Projects -----------------
 class WidgetProjects extends StatelessWidget {
   const WidgetProjects({super.key});
 
@@ -158,99 +148,6 @@ class WidgetProjects extends StatelessWidget {
   }
 }
 
-class Events extends StatefulWidget {
-  const Events({super.key});
-
-  @override
-  State<Events> createState() => _EventsState();
-}
-
-class _EventsState extends State<Events> {
-  final List<Event> events = [
-    Event(description: 'Richard planted evergreen tree', time: '10:45 PM', emoji: '🌱'),
-    Event(description: 'Monica planted palm tree', time: '09:30 AM', emoji: '🌴'),
-    Event(description: 'Liam watered the bonsai tree', time: '02:15 PM', emoji: '🌿'),
-    Event(description: 'Anastasia joined tree cleanup', time: '05:00 PM', emoji: '🍃'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: events.length,
-      scrollDirection: Axis.vertical,
-      physics: const BouncingScrollPhysics(),
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (BuildContext context, int index) {
-        final Event event = events[index];
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.grayWidget,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: AppColors.transparentIcon,
-                child: Text(event.emoji),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.textOnBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.access_time_filled_sharp,
-                            color: AppColors.primaryLight, size: 12),
-                        const SizedBox(width: 2),
-                        Flexible(
-                          child: Text(
-                            event.time,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: AppColors.primaryLight,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.transparentIcon,
-                  shape: BoxShape.circle,
-                ),
-                padding: const EdgeInsets.all(4),
-                child: Icon(
-                  Icons.favorite_border,
-                  color: AppColors.blackIcon,
-                  size: 20,
-                ),
-              ),
-            ]
-          ),
-        );
-      },
-    );
-  }
-}
-
 class Projects extends StatefulWidget {
   const Projects({super.key});
 
@@ -259,135 +156,180 @@ class Projects extends StatefulWidget {
 }
 
 class _ProjectsState extends State<Projects> {
-  final List<GreenProject> _greenProjects = [
-    GreenProject(
-      name: 'James',
-      treeType: 'Planted evergreen tree',
-      imageUrl: 'assets/0.png',
-      date: '5h ago',
-    ),
-    GreenProject(
-      name: 'Anastasia',
-      treeType: 'Planted palm tree',
-      imageUrl: 'assets/1.png',
-      date: '12 min ago',
-    ),
-    GreenProject(
-      name: 'Monica',
-      treeType: 'Planted bonsai tree',
-      imageUrl: 'assets/2.png',
-      date: 'Yesterday',
-    ),
-    GreenProject(
-      name: 'Liam',
-      treeType: 'Planted oak tree',
-      imageUrl: 'assets/3.png',
-      date: 'Today',
-    ),
-  ];
+  late Future<List<GreenProject>> _greenProjectsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _greenProjectsFuture = ProjectService(url: ApiConfig.allProjects).getAllProjects();
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 240,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: _greenProjects.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final item = _greenProjects[index];
-          return Container(
-            width: 140,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(10)),
-                      child: Image.asset(
-                        item.imageUrl,
-                        width: 140,
-                        height: 160,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.transparentIcon,
-                          shape: BoxShape.circle,
-                        ),
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.favorite_border,
-                          color: AppColors.blackIcon,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.textOnBlack,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        item.treeType,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.primaryDark,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time_filled_sharp,
-                              color: AppColors.primary, size: 12),
-                          const SizedBox(width: 5),
-                          Flexible(
-                            child: Text(
-                              item.date ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
+      child: FutureBuilder<List<GreenProject>>(
+        future: _greenProjectsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          final greenProjects = snapshot.data ?? [];
+          return ProjectHorizontalList(projects: greenProjects);
         },
       ),
+    );
+  }
+}
+
+// ----------------- Investors / Events -----------------
+class InvestorWidget extends StatelessWidget {
+  const InvestorWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text(
+              "Top investors",
+              style: TextStyle(
+                color: AppColors.textOnBlack,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.supervised_user_circle_outlined,
+                color: AppColors.blackIcon, size: 20),
+          ],
+        ),
+        const SizedBox(height: 10),
+        const SizedBox(
+          height: 320,
+          child: FinancementList(),
+        ),
+      ],
+    );
+  }
+}
+
+
+class EventsList extends StatefulWidget {
+  const EventsList({super.key});
+
+  @override
+  State<EventsList> createState() => _EventsListState();
+}
+
+class _EventsListState extends State<EventsList> {
+  late Future<List<FinancementEvent>> _eventsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _eventsFuture = FinancementService(url: ApiConfig.allFinancements).getFinancements();// API call
+  }
+
+  String _timeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    if (diff.inHours < 24) return '${diff.inHours} h ago';
+    return '${diff.inDays} d ago';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<FinancementEvent>>(
+      future: _eventsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text(snapshot.error.toString()));
+        }
+        final events = snapshot.data ?? [];
+        return ListView.separated(
+          itemCount: events.length,
+          physics: const BouncingScrollPhysics(),
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final event = events[index];
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.grayWidget,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppColors.transparentIcon,
+                    child: Text('🌱'),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event.message,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColors.textOnBlack,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.access_time_filled_sharp,
+                                color: AppColors.primaryLight, size: 12),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                _timeAgo(event.dateFinancement),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: AppColors.primaryLight,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.transparentIcon,
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: AppColors.blackIcon,
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

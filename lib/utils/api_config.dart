@@ -4,7 +4,8 @@ class ApiConfig {
   static const String login = '$baseUrl/auth/login';
   static const String username = '$baseUrl/api/user';
   static const String user = '$baseUrl/api/user/user';
-  // all
+
+
   static const String allProjects = '$baseUrl/projects';
   static const String allFinancements = '$baseUrl/financement/formated';
   // mine
@@ -12,4 +13,6 @@ class ApiConfig {
   static const String myFinancements = '$baseUrl/financement/formated/mine';
   // create project
   static const String createProject = '$baseUrl/projects';
+  //financer un projet get and post in ONE
+  static const String projectFinancements = '$baseUrl/financement/project';
 }

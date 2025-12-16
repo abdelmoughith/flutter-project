@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../entities/green_project.dart';
 import '../theme/app_colors.dart';
+import '../pages/project_details_page.dart'; // make sure this path is correct
 
 class ProjectCard extends StatelessWidget {
   final GreenProject project;
@@ -30,94 +31,104 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 140,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(10)),
-                child: Image.asset(
-                  _assetImageForIndex(index, project.imageUrl),
-                  width: 140,
-                  height: 160,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.transparentIcon,
-                    shape: BoxShape.circle,
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: AppColors.blackIcon,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        // Navigate to project details page with this project
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProjectDetailsPage(project: project),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      },
+      child: Container(
+        width: 140,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Text(
-                  project.titre,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppColors.textOnBlack,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                  child: Image.asset(
+                    _assetImageForIndex(index, project.imageUrl),
+                    width: 140,
+                    height: 160,
+                    fit: BoxFit.cover,
                   ),
                 ),
-                Text(
-                  project.typeEnergie,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppColors.primaryDark,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    Icon(Icons.access_time_filled_sharp,
-                        color: AppColors.primary, size: 12),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: Text(
-                        _timeAgo(project.dateCreation),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.transparentIcon,
+                      shape: BoxShape.circle,
                     ),
-                  ],
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: AppColors.blackIcon,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    project.titre,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textOnBlack,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    project.typeEnergie,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.primaryDark,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time_filled_sharp,
+                          color: AppColors.primary, size: 12),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          _timeAgo(project.dateCreation),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

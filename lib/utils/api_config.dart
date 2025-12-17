@@ -1,7 +1,8 @@
 class ApiConfig {
-  static const String baseUrl = 'http://10.84.194.180:8880';
+  static const String baseUrl = 'http://10.64.30.180:8880';
   // auth
   static const String login = '$baseUrl/auth/login';
+  static const String register = '$baseUrl/auth/register';
   static const String username = '$baseUrl/api/user';
   static const String user = '$baseUrl/api/user/user';
 
